@@ -3,7 +3,7 @@
 session_start();
 
 // Include database connection
-include 'db_connection.php';
+include 'database/db_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'login') {
     $email = htmlspecialchars($_POST['email']);
@@ -11,13 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
 
     if (!empty($email) && !empty($password)) {
         // Prepare and execute query
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email_user = ?");
-        $stmt->bindParam("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email_user = :email_user");
+        $stmt->execute(['email_user' => $email]);
+        $result = $stmt->fetch();
 
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
+        var_dump($result); // Debugging line to check the result
+
+        if ($result != null) {
             // Verify password
             if (password_verify($password, $user['password_user'])) {
                 $_SESSION['user_id'] = $user['id_user'];
@@ -36,24 +36,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'register') {
     // Retrieve form data
-    $lastname = htmlspecialchars($_POST['lastname_user']);
-    $name = htmlspecialchars($_POST['name_user']);
-    $email = htmlspecialchars($_POST['email_user']);
-    $phone = htmlspecialchars($_POST['phone_user']);
-    $address = htmlspecialchars($_POST['address_user']);
-    $postcode = htmlspecialchars($_POST['postcode_user']);
-    $city = htmlspecialchars($_POST['city_user']);
-    $password = htmlspecialchars($_POST['password_user']);
+    $lastname = $_POST['lastname'] ? htmlspecialchars($_POST['lastname']) : null;
+    $name = $_POST['name'] ? htmlspecialchars($_POST['name']) : null;
+    $email = $_POST['email'] ? htmlspecialchars($_POST['email']) : null;
+    $phone = $_POST['phone'] ? htmlspecialchars($_POST['phone']) : null;
+    $address = $_POST['address'] ? htmlspecialchars($_POST['address']) : null;
+    $postcode = $_POST['postcode'] ? htmlspecialchars($_POST['postcode']) : null;
+    $city = $_POST['city'] ? htmlspecialchars($_POST['city']) : null;
+    $password = $_POST['password'] ? htmlspecialchars($_POST['password']) : null;
+
+    echo $lastname, "<br/>", $name, "<br/>", $email, "<br/>", $phone, "<br/>", $address, "<br/>", $postcode, "<br/>", $city, "<br/>", hash("sha256", $password);
 
     // Validate form data (basic example)
-    if (!empty($name) && !empty($lastname) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!empty($name) && !empty($lastname) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         // Save the data to the database
-        $stmt = $conn->prepare("INSERT INTO users (lastname_user, name_user, email_user, phone_user, address_user, postcode_user, city_user, password_user) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssssss", $lastname, $name, $email, $phone, $address, $postcode, $city, $password);
-        if ($stmt->execute()) {
+        $stmt = $pdo->prepare("INSERT INTO users (lastname_user, name_user, email_user, phone_user, address_user, postcode_user, city_user, password_user) VALUES (:lastname_user, :name_user, :email_user, :phone_user, :address_user, :postcode_user, :city_user, :password_user)");
+        if ($stmt->execute(["lastname_user" => $lastname, "name_user" => $name, "email_user" => $email, "phone_user" => $phone, "address_user" => $address, "postcode_user" => $postcode, "city_user" => $city, "password_user" => hash("sha256", $password)])) {
             echo "Account successfully created!";
+            var_dump($stmt);
         } else {
-            echo "Error: " . $stmt->error;
+            echo "Error: " . $stmt->errorInfo()[2];
         }
     } else {
         echo "Register : Please fill in all fields correctly.";
@@ -96,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (!isset($_POST['form_type']) || ($_P
         </div>
         <div class="login-container">
             <h2>Register</h2>
-            <form action="register.php" method="POST">
+            <form action="login.php" method="POST">
                 <input type="hidden" name="form_type" value="register">
                 <div class="form-group">
                     <label for="name">Nom de famille :</label><br>
