@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
             // Verify password
             if (password_verify($password, $result['password_user'])) {
                 $_SESSION['user_id'] = $result['id_user'];
+                $_SESSION['role'] = $result['id_role'];
                 echo "Login successful!";
                 // Redirect to the home page
                 header("Location: index.php");

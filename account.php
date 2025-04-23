@@ -123,7 +123,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="button">Mettre à jour</button>
             </form>
         </div>
-<!-- paste snipet of code here -->
+        <div id="active-books" class="section">
+            <ul>
+                <?php foreach ($activeBooks as $book): ?>
+                    <li><?= htmlspecialchars($book['title']) ?> - Due: <?= htmlspecialchars($book['due_date']) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <div id="active-disputes" class="section">
+            <ul>
+                <?php foreach ($activeDisputes as $dispute): ?>
+                    <li>#<?= htmlspecialchars($dispute['id']) ?> - <?= htmlspecialchars($dispute['description']) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
     <script>
         function showSection(sectionId) {
             const sections = document.querySelectorAll('.section');
