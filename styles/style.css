@@ -48,6 +48,11 @@ a:hover {
     border-radius: 5px;
 }
 
+.navbar-right {
+    margin-left: auto;
+    padding: 10px 15px;
+}
+
 .login-container {
     background: #fff;
     padding: 20px;
