@@ -15,8 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
         $stmt->execute(['email_user' => $email]);
         $result = $stmt->fetch();
 
-        var_dump($result); // Debugging line to check the result
-
         if ($result != null) {
             // Verify password
             if (password_verify($password, $result['password_user'])) {
@@ -57,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
         $stmt = $pdo->prepare("INSERT INTO users (lastname_user, name_user, email_user, phone_user, address_user, postcode_user, city_user, password_user) VALUES (:lastname_user, :name_user, :email_user, :phone_user, :address_user, :postcode_user, :city_user, :password_user)");
         if ($stmt->execute(["lastname_user" => $lastname, "name_user" => $name, "email_user" => $email, "phone_user" => $phone, "address_user" => $address, "postcode_user" => $postcode, "city_user" => $city, "password_user" => password_hash($password, PASSWORD_DEFAULT)])) {
             echo "Account successfully created!";
-            var_dump($stmt);
         } else {
             echo "Error: " . $stmt->errorInfo()[2];
         }
