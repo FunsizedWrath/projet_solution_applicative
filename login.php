@@ -104,11 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (!isset($_POST['form_type']) || ($_P
             <form action="login.php" method="POST">
                 <input type="hidden" name="form_type" value="register">
                 <div class="form-group">
-                    <label for="name">Nom de famille :</label><br>
-                    <input type="text" id="name" name="name" required><br><br>
-
-                    <label for="lastname">Prénom :</label><br>
+                    <label for="lastname">Nom de famille :</label><br>
                     <input type="text" id="lastname" name="lastname" required><br><br>
+
+                    <label for="name">Prénom :</label><br>
+                    <input type="text" id="name" name="name" required><br><br>
 
                     <label for="email">E-mail :</label><br>
                     <input type="email" id="email" name="email" required><br><br>

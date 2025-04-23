@@ -55,23 +55,28 @@ a:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 300px;
 }
+
 .login-container h2 {
     margin-bottom: 20px;
     text-align: center;
 }
+
 .form-group {
     margin-bottom: 15px;
 }
+
 .form-group label {
     display: block;
     margin-bottom: 5px;
 }
+
 .form-group input {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
 .form-group button {
     width: 100%;
     padding: 10px;
@@ -81,6 +86,7 @@ a:hover {
     border-radius: 4px;
     cursor: pointer;
 }
+
 .form-group button:hover {
     background-color: #0056b3;
 }
@@ -93,7 +99,7 @@ label {
     display: block;
     margin-top: 10px;
 }
-input[type="text"], input[type="email"] {
+input[type="text"], input[type="email"], input[type="password"] {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
