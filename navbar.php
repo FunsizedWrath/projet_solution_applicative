@@ -29,7 +29,7 @@
             echo '<a href="account.php">Compte</a>';
             echo '<a href="logout.php">Déconnexion</a>';
         } else {
-            echo '<a href="login.php">Se connecter/Créer un compte</a>';
+            echo '<a href="login.php">Se connecter / Créer un compte</a>';
         }
         echo '</div>';
     ?>

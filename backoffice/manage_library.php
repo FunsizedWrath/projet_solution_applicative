@@ -1,6 +1,5 @@
 <?php
-// manage_document.php
-require_once 'db_connection.php'; // Include your database connection file
+require_once '../database/db_connection.php';
 
 // Handle form submission for creating, updating, or deleting documents
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -30,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch all documents
-$stmt = $pdo->query("SELECT * FROM documents");
+$stmt = $pdo->query("SELECT * FROM document");
 $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 

@@ -1,4 +1,5 @@
 <?php
+require_once '../database/db_connection.php';
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
