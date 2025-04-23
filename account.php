@@ -1,28 +1,6 @@
 <?php
 session_start();
 
-// Mock user data (replace with database query in production)
-$user = [
-    'username' => 'johndoe',
-    'email' => 'johndoe@example.com',
-    'phone' => '123-456-7890',
-    'lastname' => 'Doe',
-    'name' => 'John',
-    'address' => '123 Main St',
-    'postcode' => '12345',
-    'city' => 'Sample City'
-];
-
-// Mock data for active books rented and disputes
-$activeBooks = [
-    ['title' => 'Book 1', 'due_date' => '2023-12-01'],
-    ['title' => 'Book 2', 'due_date' => '2023-12-15']
-];
-
-$activeDisputes = [
-    ['id' => 1, 'description' => 'Late return fee dispute'],
-    ['id' => 2, 'description' => 'Damaged book dispute']
-];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

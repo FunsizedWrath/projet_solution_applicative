@@ -19,11 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
 
         if ($result != null) {
             // Verify password
-            if (password_verify($password, $user['password_user'])) {
-                $_SESSION['user_id'] = $user['id_user'];
+            if (password_verify($password, $result['password_user'])) {
+                $_SESSION['user_id'] = $result['id_user'];
+                echo "Login successful!";
+                // Redirect to the home page
                 header("Location: index.php");
                 exit();
             } else {
+                error_log("Password verification failed for user: " . $email);
                 echo "Invalid password.";
             }
         } else {
@@ -51,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
     if (!empty($name) && !empty($lastname) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         // Save the data to the database
         $stmt = $pdo->prepare("INSERT INTO users (lastname_user, name_user, email_user, phone_user, address_user, postcode_user, city_user, password_user) VALUES (:lastname_user, :name_user, :email_user, :phone_user, :address_user, :postcode_user, :city_user, :password_user)");
-        if ($stmt->execute(["lastname_user" => $lastname, "name_user" => $name, "email_user" => $email, "phone_user" => $phone, "address_user" => $address, "postcode_user" => $postcode, "city_user" => $city, "password_user" => hash("sha256", $password)])) {
+        if ($stmt->execute(["lastname_user" => $lastname, "name_user" => $name, "email_user" => $email, "phone_user" => $phone, "address_user" => $address, "postcode_user" => $postcode, "city_user" => $city, "password_user" => password_hash($password, PASSWORD_DEFAULT)])) {
             echo "Account successfully created!";
             var_dump($stmt);
         } else {
