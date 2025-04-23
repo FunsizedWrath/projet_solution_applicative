@@ -48,17 +48,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id_user' => $id
         ];
         $stmt->execute($params);
+
     } elseif (isset($_POST['delete'])) {
         $id = $_POST['id'];
 
-        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-        $stmt->execute([$id]);
-    } elseif (isset($_POST['dispute'])) {
-        $userId = $_POST['user_id'];
-        $reason = $_POST['reason'];
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id_user = :id_user");
+        $stmt->execute(["id_user" => $id]);
 
-        $stmt = $pdo->prepare("INSERT INTO disputes (user_id, reason) VALUES (?, ?)");
-        $stmt->execute([$userId, $reason]);
+    } elseif (isset($_POST['dispute'])) {
+        $id = $_POST['user_id'];
+        $type_dispute = $_POST['type_dispute'];
+        $description_dispute = $_POST['description_dispute'];
+
+        $stmt = $pdo->prepare("INSERT INTO disputes (id_user, type_dispute, description_dispute) VALUES (:id_user, :type_dispute, :description_dispute)");
+        $stmt->execute([
+            "id" => $id,
+            "type_dispute" => $type_dispute,
+            "description_dispute" => $description_dispute
+        ]);
     }
 }
 
