@@ -34,7 +34,7 @@ CREATE TABLE Location(
 
 CREATE TABLE Document(
    id_document INTEGER,
-   name_document TEXT NOT NULL,
+   title_document TEXT NOT NULL,
    publishing_date_document NUMERIC NOT NULL,
    description_document TEXT,
    acquisition_date_document NUMERIC NOT NULL,
