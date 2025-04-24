@@ -9,7 +9,7 @@
 <body>
     <?php include 'navbar.php'; ?>
     <header>
-        <h1>Bienvenu à la bibliothèque de Montpellier</h1>
+        <h1>Bienvenue à la bibliothèque de Montpellier</h1>
     </header>
     <main>
         <h2>Découvrez notre collection</h2>
