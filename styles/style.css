@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 10px 15px;
     background-color: #f4f4f9;
     color: #333;
 }
@@ -205,4 +205,15 @@ button:hover {
 
 .section.active {
     display: block;
+}
+
+.document-details-table-cell {
+    padding: 10px;
+    border: 1px solid #000000;
+    text-align: left;
+    width: 50%;
+}
+
+.document-table {
+    width: 100%;
 }

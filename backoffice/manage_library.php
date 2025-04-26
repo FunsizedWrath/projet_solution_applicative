@@ -74,9 +74,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch all documents
-$stmt = $pdo->query("SELECT * FROM document");
+// // Fetch all documents
+// $stmt = $pdo->query("SELECT * FROM document");
+// $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all books and disks for each document
+$stmt = $pdo->query("SELECT d.*, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk FROM document d LEFT JOIN book b ON d.id_document = b.id_document LEFT JOIN disk di ON d.id_document = di.id_document");
 $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+enum type_document
+{
+    case Book;
+    case Disk;
+}
 ?>
 
 <!DOCTYPE html>
@@ -167,41 +178,47 @@ $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </form>
 
     <h2>Existing Documents</h2>
-    <table border="1">
+    <table border="1" class="document-table">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Title</th>
                 <th>Type</th>
-                <th>Author</th>
-                <th>Actions</th>
+                <th>Infos</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($documents as $document): ?>
+                <?php $document['type_document'] = array_key_exists('author_book', $document) && $document['author_book'] != null
+                        ? type_document::Book
+                        : type_document::Disk ?>
                 <tr>
-                    <td><?= htmlspecialchars($document['id']) ?></td>
-                    <td><?= htmlspecialchars($document['title']) ?></td>
-                    <td><?= htmlspecialchars($document['type']) ?></td>
-                    <td><?= htmlspecialchars($document['author']) ?></td>
+                    <td><?= htmlspecialchars($document['title_document']) ?></td>
+                    <td><?=
+                        $document['type_document'] == type_document::Book ? 'Livre' : 'Disque'
+                    ?></td>
                     <td>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?= htmlspecialchars($document['id']) ?>">
-                            <button type="submit">Delete</button>
-                        </form>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="action" value="update">
-                            <input type="hidden" name="id" value="<?= htmlspecialchars($document['id']) ?>">
-                            <input type="text" name="title" value="<?= htmlspecialchars($document['title']) ?>" required>
-                            <select name="type" required>
-                                <option value="book" <?= $document['type'] === 'book' ? 'selected' : '' ?>>Book</option>
-                                <option value="disk" <?= $document['type'] === 'disk' ? 'selected' : '' ?>>Disk</option>
-                            </select>
-                            <input type="text" name="author" value="<?= htmlspecialchars($document['author']) ?>" required>
-                            <button type="submit">Update</button>
-                        </form>
+                        <div style="display: flex; flex-direction: row; gap:2px; width: 100%;">
+                            <div class="document-details-table-cell">
+                            <!-- display the document details based on its type -->
+                            <?php if ($document['type_document'] == type_document::Book): ?>
+                                <p>Auteur: <?= htmlspecialchars($document['author_book']) ?></p>
+                                <p>Nombre de mots: <?= htmlspecialchars($document['nbr_words_book']) ?></p>
+                                <p>Editeur: <?= htmlspecialchars($document['publisher_book']) ?></p>
+                            <?php else : ?>
+                                <p>Artiste: <?= htmlspecialchars($document['artist_disk']) ?></p>
+                                <p>Producteur: <?= htmlspecialchars($document['producer_disk']) ?></p>
+                                <p>Directeur: <?= htmlspecialchars($document['director_disk']) ?></p>
+                            <?php endif; ?>
+                            </div>
+                            <div class="document-details-table-cell">
+                                <p>Description: <?= htmlspecialchars($document['description_document']) ?></p>
+                                <p>Date de publication: <?= htmlspecialchars($document['publishing_date_document']) ?></p>
+                                <p>Date d'acquisition: <?= htmlspecialchars($document['acquisition_date_document']) ?></p>
+                                <p>Emplacement: <?= htmlspecialchars($document['id_location']) ?></p>
+                            </div>
+                        </div>
                     </td>
+
                 </tr>
             <?php endforeach; ?>
         </tbody>
