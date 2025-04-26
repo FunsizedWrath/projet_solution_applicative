@@ -3,13 +3,15 @@ BACKOFFICE
 -modifier le form gestion manage_clients
     -au lieu de mettre des form dans le tableau des users, mettre un bouton vers le form d'un seul user
     -faire le form pour les disputes dans la page spécifique d'un user
--faire la gestion de documents
+    -barre de recherche
+-gestion de documents -> implémenter une barre de recherche
 -gerer l'emprunt de documents
 -gerer les abonnements users
 -gerer la creation d'employee back office (user with role)
 -gérer les tags pour les documents
 
 CLIENT
+-barre de recherche + filtres grâce aux tags
 
 
 to fix :
