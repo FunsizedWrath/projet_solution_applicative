@@ -20,6 +20,8 @@ CREATE TABLE Permission(
 CREATE TABLE Subscription(
    id_subscription INTEGER,
    name_subscription TEXT NOT NULL,
+   start_date_subscription NUMERIC,
+   end_date_subscription NUMERIC,
    PRIMARY KEY(id_subscription),
    UNIQUE(name_subscription)
 );
@@ -98,6 +100,8 @@ CREATE TABLE Dispute(
    type_dispute TEXT NOT NULL,
    description_dispute TEXT,
    status_dispute TEXT,
+   start_date_dispute NUMERIC,
+   end_date_dispute NUMERIC,
    PRIMARY KEY(id_user, id_record, id_document),
    FOREIGN KEY(id_user) REFERENCES Users(id_user),
    FOREIGN KEY(id_record) REFERENCES Record(id_record),
@@ -115,6 +119,7 @@ CREATE TABLE Subscribed(
 CREATE TABLE Borrowed(
    id_user INTEGER,
    id_document INTEGER,
+   date_borrowed NUMERIC,
    PRIMARY KEY(id_user, id_document),
    FOREIGN KEY(id_user) REFERENCES Users(id_user),
    FOREIGN KEY(id_document) REFERENCES Document(id_document)
