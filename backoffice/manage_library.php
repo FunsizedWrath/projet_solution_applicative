@@ -52,25 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'director_disk' => $director,
             ]);
         }
-
-    } elseif ($action === 'update') {
-        $id = $_POST['id'];
-        $type = $_POST['type'];
-        $title = $_POST['title'];
-        $author = $_POST['author'] ?? null;
-
-        $stmt = $pdo->prepare("UPDATE document SET type = :type, title = :title, author = :author WHERE id = :id");
-        $stmt->execute([
-            ':type' => $type,
-            ':title' => $title,
-            ':author' => $author,
-            ':id' => $id,
-        ]);
     } elseif ($action === 'delete') {
         $id = $_POST['id'];
 
-        $stmt = $pdo->prepare("DELETE FROM document WHERE id = :id");
-        $stmt->execute([':id' => $id]);
+        $stmt = $pdo->prepare("DELETE FROM document WHERE id_document = :id_document");
+        $stmt->execute([':id_document' => $id]);
     }
 }
 
@@ -83,11 +69,7 @@ $stmt = $pdo->query("SELECT d.*, b.author_book, b.nbr_words_book, b.publisher_bo
 $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-enum type_document
-{
-    case Book;
-    case Disk;
-}
+include '../database/document_type_enum.php';
 ?>
 
 <!DOCTYPE html>
@@ -184,6 +166,7 @@ enum type_document
                 <th>Title</th>
                 <th>Type</th>
                 <th>Infos</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -218,6 +201,15 @@ enum type_document
                             </div>
                         </div>
                     </td>
+                    <td>
+                        <a href="update_document.php?id_document=<?= $document['id_document'] ?>" style="display: inline-block;">
+                            <button type="button">Update</button>
+                        </a>
+                        <form method="POST" style="display: inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" value="<?= $document['id_document'] ?>">
+                            <button type="submit">Delete</button>
+                        </form>
 
                 </tr>
             <?php endforeach; ?>
