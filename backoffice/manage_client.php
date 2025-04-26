@@ -1,7 +1,6 @@
 <?php
 require_once '../database/db_connection.php';
 
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'register') {
     // Retrieve form data
     $lastname = $_POST['lastname'] ? htmlspecialchars($_POST['lastname']) : null;
@@ -130,7 +129,7 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
         </thead>
         <tbody>
             <?php foreach ($users as $user): ?>
-                <tr><?php echo var_dump($user) ?>
+                <tr>
                     <td><?= htmlspecialchars($user['lastname_user']) ?></td>
                     <td><?= htmlspecialchars($user['name_user']) ?></td>
                     <td><?= htmlspecialchars($user['email_user']) ?></td>

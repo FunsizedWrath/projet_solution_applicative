@@ -202,7 +202,7 @@ include '../database/document_type_enum.php';
                         </div>
                     </td>
                     <td>
-                        <a href="update_document.php?id_document=<?= $document['id_document'] ?>" style="display: inline-block;">
+                        <a href="update_document.php?id_document=<?= $document['id_document'] ?>&type=<?= $document['type_document']->name ?>" style="display: inline-block;">
                             <button type="button">Update</button>
                         </a>
                         <form method="POST" style="display: inline;">
