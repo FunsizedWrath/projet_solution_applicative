@@ -1,7 +1,9 @@
 <?php
 // Include database connection
 require_once '../database/db_connection.php';
-include '../database/document_type_enum.php';
+require_once '../database/document_type_enum.php';
+
+session_start();
 
 $role = $_SESSION['role'] ?? null;
 if ($role === null) {

@@ -2,6 +2,8 @@
 // Include database connection
 require_once '../database/db_connection.php';
 
+session_start();
+
 $role = $_SESSION['role'] ?? null;
 if ($role === null) {
     header("Location: login.php");

@@ -1,6 +1,17 @@
 <?php
 require_once '../database/db_connection.php';
 
+session_start();
+
+$role = $_SESSION['role'] ?? null;
+if ($role === null) {
+    header("Location: ../login.php");
+    exit();
+} elseif ($role < 1 || $role >= 4) {
+    echo "Access denied.";
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'register') {
     // Retrieve form data
     $lastname = htmlspecialchars($_POST['lastname']);
@@ -54,14 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
 
 // }
 
-$role = $_SESSION['role'] ?? null;
-if ($role === null) {
-    header("Location: login.php");
-    exit();
-} elseif ($role < 1 || $role >= 4) {
-    echo "Access denied.";
-    exit();
-}
+$roles = $pdo->query("SELECT * FROM role")->fetchAll(PDO::FETCH_ASSOC);
+
+$roles = array_filter($roles, function ($r) use ($role) {
+    return $r['id_role'] >= $role;
+});
 
 // Fetch users
 $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
@@ -106,10 +114,11 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
 
             <label for="id_role">Rôle :</label><br>
             <select id="id_role" name="id_role" required>
-                <option value="1">Super Admin</option>
-                <option value="2">Admin</option>
-                <option value="3">Employé</option>
-                <option value="4">Client</option>
+                <?php foreach ($roles as $role): ?>
+                    <option value="<?= $role['id_role'] ?>">
+                        <?= htmlspecialchars($role['name_role']) ?>
+                    </option>
+                <?php endforeach; ?>
             </select><br><br>
 
             <label for="reg-password">Mot de passe :</label>
