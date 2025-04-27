@@ -3,6 +3,15 @@
 require_once '../database/db_connection.php';
 include '../database/document_type_enum.php';
 
+$role = $_SESSION['role'] ?? null;
+if ($role === null) {
+    header("Location: login.php");
+    exit();
+} elseif ($role < 1 || $role >= 4) {
+    echo "Access denied.";
+    exit();
+}
+
 // Check if the document ID is provided
 if (!isset($_GET['id_document']) || empty($_GET['id_document'])) {
     die('Document ID is required.');

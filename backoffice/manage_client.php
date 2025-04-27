@@ -3,20 +3,21 @@ require_once '../database/db_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'register') {
     // Retrieve form data
-    $lastname = $_POST['lastname'] ? htmlspecialchars($_POST['lastname']) : null;
-    $name = $_POST['name'] ? htmlspecialchars($_POST['name']) : null;
-    $email = $_POST['email'] ? htmlspecialchars($_POST['email']) : null;
+    $lastname = htmlspecialchars($_POST['lastname']);
+    $name = htmlspecialchars($_POST['name']);
+    $email = htmlspecialchars($_POST['email']);
     $phone = $_POST['phone'] ? htmlspecialchars($_POST['phone']) : null;
     $address = $_POST['address'] ? htmlspecialchars($_POST['address']) : null;
     $postcode = $_POST['postcode'] ? htmlspecialchars($_POST['postcode']) : null;
     $city = $_POST['city'] ? htmlspecialchars($_POST['city']) : null;
+    $id_role = htmlspecialchars($_POST['id_role']);
     $password = $_POST['password'] ? htmlspecialchars($_POST['password']) : null;
 
     // Validate form data (basic example)
     if (!empty($name) && !empty($lastname) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         // Save the data to the database
-        $stmt = $pdo->prepare("INSERT INTO users (lastname_user, name_user, email_user, phone_user, address_user, postcode_user, city_user, password_user) VALUES (:lastname_user, :name_user, :email_user, :phone_user, :address_user, :postcode_user, :city_user, :password_user)");
-        if ($stmt->execute(["lastname_user" => $lastname, "name_user" => $name, "email_user" => $email, "phone_user" => $phone, "address_user" => $address, "postcode_user" => $postcode, "city_user" => $city, "password_user" => password_hash($password, PASSWORD_DEFAULT)])) {
+        $stmt = $pdo->prepare("INSERT INTO users (lastname_user, name_user, email_user, phone_user, address_user, postcode_user, city_user, password_user, id_role) VALUES (:lastname_user, :name_user, :email_user, :phone_user, :address_user, :postcode_user, :city_user, :password_user, :id_role)");
+        if ($stmt->execute(["lastname_user" => $lastname, "name_user" => $name, "email_user" => $email, "phone_user" => $phone, "address_user" => $address, "postcode_user" => $postcode, "city_user" => $city, "password_user" => password_hash($password, PASSWORD_DEFAULT), "id_role" => $id_role])) {
             echo "Account successfully created!";
         } else {
             echo "Error: " . $stmt->errorInfo()[2];
@@ -52,6 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
 //         $stmt->execute($params);
 
 // }
+
+$role = $_SESSION['role'] ?? null;
+if ($role === null) {
+    header("Location: login.php");
+    exit();
+} elseif ($role < 1 || $role >= 4) {
+    echo "Access denied.";
+    exit();
+}
 
 // Fetch users
 $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
@@ -93,6 +103,14 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
 
             <label for="city">Ville :</label><br>
             <input type="text" id="city" name="city"><br><br>
+
+            <label for="id_role">Rôle :</label><br>
+            <select id="id_role" name="id_role" required>
+                <option value="1">Super Admin</option>
+                <option value="2">Admin</option>
+                <option value="3">Employé</option>
+                <option value="4">Client</option>
+            </select><br><br>
 
             <label for="reg-password">Mot de passe :</label>
             <input type="password" id="reg-password" name="password" required>

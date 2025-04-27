@@ -3,6 +3,14 @@
 
 session_start();
 
+$role = $_SESSION['role'] ?? null;
+if ($role === null) {
+    header("Location: login.php");
+    exit();
+} elseif ($role < 1 || $role >= 4) {
+    echo "Access denied.";
+    exit();
+}
 // // Check if the user is logged in
 // if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 //     header("Location: ../login.php");

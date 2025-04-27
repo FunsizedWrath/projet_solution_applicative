@@ -1,6 +1,15 @@
 <?php
 require_once '../database/db_connection.php';
 
+$role = $_SESSION['role'] ?? null;
+if ($role === null) {
+    header("Location: login.php");
+    exit();
+} elseif ($role < 1 || $role >= 4) {
+    echo "Access denied.";
+    exit();
+}
+
 // Handle form submission for creating, updating, or deleting documents
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
