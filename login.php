@@ -47,8 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
     $city = $_POST['city'] ? htmlspecialchars($_POST['city']) : null;
     $password = $_POST['password'] ? htmlspecialchars($_POST['password']) : null;
 
-    echo $lastname, "<br/>", $name, "<br/>", $email, "<br/>", $phone, "<br/>", $address, "<br/>", $postcode, "<br/>", $city, "<br/>", hash("sha256", $password);
-
     // Validate form data (basic example)
     if (!empty($name) && !empty($lastname) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         // Save the data to the database

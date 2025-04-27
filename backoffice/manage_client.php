@@ -12,8 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
     $city = $_POST['city'] ? htmlspecialchars($_POST['city']) : null;
     $password = $_POST['password'] ? htmlspecialchars($_POST['password']) : null;
 
-    echo $lastname, "<br/>", $name, "<br/>", $email, "<br/>", $phone, "<br/>", $address, "<br/>", $postcode, "<br/>", $city, "<br/>", hash("sha256", $password);
-
     // Validate form data (basic example)
     if (!empty($name) && !empty($lastname) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         // Save the data to the database
@@ -26,47 +24,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST
     } else {
         echo "Register : Please fill in all fields correctly.";
     }
+} elseif (isset($_POST['action']) && $_POST['action'] === 'delete') {
+    $id = $_POST['id'];
+
+    $stmt = $pdo->prepare("DELETE FROM users WHERE id_user = :id_user");
+    $stmt->execute([':id_user' => $id]);
 }
 // Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['update'])) {
-        $id = $_POST['id'];
-        $lastname = $_POST['lastname'];
-        $name = $_POST['name'];
-        $email = $_POST['email'];
+// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//     if (isset($_POST['update'])) {
+//         $id = $_POST['id'];
+//         $lastname = $_POST['lastname'];
+//         $name = $_POST['name'];
+//         $email = $_POST['email'];
 
-        $stmt = $pdo->prepare("UPDATE users SET lastname_user = :lastname_user, name_user = :name_user, email_user = :email_user WHERE id_user = :id_user");
-        $params = [
-            'lastname_user' => $lastname,
-            'name_user' => $name,
-            'email_user' => $email,
-            // 'phone_user' => $phone,
-            // 'address_user' => $address,
-            // 'postcode_user' => $postcode,
-            // 'city_user' => $city,
-            'id_user' => $id
-        ];
-        $stmt->execute($params);
+//         $stmt = $pdo->prepare("UPDATE users SET lastname_user = :lastname_user, name_user = :name_user, email_user = :email_user WHERE id_user = :id_user");
+//         $params = [
+//             'lastname_user' => $lastname,
+//             'name_user' => $name,
+//             'email_user' => $email,
+//             // 'phone_user' => $phone,
+//             // 'address_user' => $address,
+//             // 'postcode_user' => $postcode,
+//             // 'city_user' => $city,
+//             'id_user' => $id
+//         ];
+//         $stmt->execute($params);
 
-    } elseif (isset($_POST['delete'])) {
-        $id = $_POST['id'];
-
-        $stmt = $pdo->prepare("DELETE FROM users WHERE id_user = :id_user");
-        $stmt->execute(["id_user" => $id]);
-
-    } elseif (isset($_POST['dispute'])) {
-        $id = $_POST['user_id'];
-        $type_dispute = $_POST['type_dispute'];
-        $description_dispute = $_POST['description_dispute'];
-
-        $stmt = $pdo->prepare("INSERT INTO disputes (id_user, type_dispute, description_dispute) VALUES (:id_user, :type_dispute, :description_dispute)");
-        $stmt->execute([
-            "id" => $id,
-            "type_dispute" => $type_dispute,
-            "description_dispute" => $description_dispute
-        ]);
-    }
-}
+// }
 
 // Fetch users
 $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
@@ -134,24 +119,15 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= htmlspecialchars($user['name_user']) ?></td>
                     <td><?= htmlspecialchars($user['email_user']) ?></td>
                     <td>
-                        <form method="POST" style="display:inline;">
+                        <a href="update_document.php?id_user=<?= $user['id_user'] ?>" style="display: inline-block;">
+                            <button type="button">Update</button>
+                        </a>
+                        <form method="POST" style="display: inline;">
+                            <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $user['id_user'] ?>">
-                            <input type="text" name="lastname" value="<?= $user['lastname_user'] ?>">
-                            <input type="text" name="name" value="<?= htmlspecialchars($user['name_user']) ?>" required>
-                            <input type="email" name="email" value="<?= htmlspecialchars($user['email_user']) ?>" required>
-                            <button type="submit" name="update">Update</button>
+                            <button type="submit">Delete</button>
                         </form>
 
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="id" value="<?= $user['id_user'] ?>">
-                            <button type="submit" name="delete">Delete</button>
-                        </form>
-
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="user_id" value="<?= $user['id_user'] ?>">
-                            <input type="text" name="reason" placeholder="Dispute Reason" required>
-                            <button type="submit" name="dispute">Open Dispute</button>
-                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>

@@ -210,6 +210,7 @@ include '../database/document_type_enum.php';
                             <input type="hidden" name="id" value="<?= $document['id_document'] ?>">
                             <button type="submit">Delete</button>
                         </form>
+                    </td>
 
                 </tr>
             <?php endforeach; ?>
