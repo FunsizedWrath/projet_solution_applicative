@@ -23,9 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $publishing_date = $_POST['publishing_date'];
         $acquisition_date = $_POST['acquisition_date'];
-        $location = $_POST['location'];
-
-        $id_location = 1;
+        $id_location = $_POST['id_location'];
 
         // Book-specific fields
         $author = $_POST['author'] ?? null;
@@ -71,12 +69,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$locations = $pdo->query("SELECT * FROM location")->fetchAll(PDO::FETCH_ASSOC);
+
 // // Fetch all documents
 // $stmt = $pdo->query("SELECT * FROM document");
 // $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch all books and disks for each document
-$stmt = $pdo->query("SELECT d.*, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk FROM document d LEFT JOIN book b ON d.id_document = b.id_document LEFT JOIN disk di ON d.id_document = di.id_document");
+$stmt = $pdo->query("SELECT d.*, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk, l.* FROM document d LEFT JOIN book b ON d.id_document = b.id_document LEFT JOIN disk di ON d.id_document = di.id_document LEFT JOIN location l ON d.id_location = l.id_location");
 $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
@@ -103,16 +103,30 @@ include '../database/document_type_enum.php';
             <option value="book">Livre</option>
             <option value="disk">Disque</option>
         </select>
+
         <label for="title">Titre :</label>
         <input type="text" id="title" name="title" required>
+
         <label for="description">Description :</label>
         <textarea id="description" name="description"></textarea>
+
         <label for="publishing_date">Date de publication :</label>
         <input type="date" id="publishing_date" name="publishing_date" required>
+
         <label for="acquisition_date">Date d'acquisition :</label>
         <input type="date" id="acquisition_date" name="acquisition_date" required>
-        <label for="location">Emplacement :</label>
-        <input type="text" id="location" name="location" required>
+
+        <!-- <label for="id_location">Emplacement :</label>
+        <input type="text" id="id_location" name="id_location" required> -->
+
+        <label for="id_location">Emplacement :</label><br>
+            <select id="id_location" name="id_location" required>
+                <?php foreach ($locations as $location): ?>
+                    <option value="<?= $location['id_location'] ?>">
+                        <?= htmlspecialchars($location['name_location']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select><br><br>
 
         <div id="dynamic-form"></div>
 
@@ -195,20 +209,20 @@ include '../database/document_type_enum.php';
                             <div class="document-details-table-cell">
                             <!-- display the document details based on its type -->
                             <?php if ($document['type_document'] == type_document::Book): ?>
-                                <p>Auteur: <?= htmlspecialchars($document['author_book']) ?></p>
-                                <p>Nombre de mots: <?= htmlspecialchars($document['nbr_words_book']) ?></p>
-                                <p>Editeur: <?= htmlspecialchars($document['publisher_book']) ?></p>
+                                <p>Auteur : <?= htmlspecialchars($document['author_book']) ?></p>
+                                <p>Nombre de mots : <?= htmlspecialchars($document['nbr_words_book']) ?></p>
+                                <p>Editeur : <?= htmlspecialchars($document['publisher_book']) ?></p>
                             <?php else : ?>
-                                <p>Artiste: <?= htmlspecialchars($document['artist_disk']) ?></p>
-                                <p>Producteur: <?= htmlspecialchars($document['producer_disk']) ?></p>
-                                <p>Directeur: <?= htmlspecialchars($document['director_disk']) ?></p>
+                                <p>Artiste : <?= htmlspecialchars($document['artist_disk']) ?></p>
+                                <p>Producteur : <?= htmlspecialchars($document['producer_disk']) ?></p>
+                                <p>Directeur : <?= htmlspecialchars($document['director_disk']) ?></p>
                             <?php endif; ?>
                             </div>
                             <div class="document-details-table-cell">
-                                <p>Description: <?= htmlspecialchars($document['description_document']) ?></p>
-                                <p>Date de publication: <?= htmlspecialchars($document['publishing_date_document']) ?></p>
-                                <p>Date d'acquisition: <?= htmlspecialchars($document['acquisition_date_document']) ?></p>
-                                <p>Emplacement: <?= htmlspecialchars($document['id_location']) ?></p>
+                                <p>Description : <?= htmlspecialchars($document['description_document']) ?></p>
+                                <p>Date de publication : <?= htmlspecialchars($document['publishing_date_document']) ?></p>
+                                <p>Date d'acquisition : <?= htmlspecialchars($document['acquisition_date_document']) ?></p>
+                                <p>Emplacement : <?= htmlspecialchars($document['name_location']) ?></p>
                             </div>
                         </div>
                     </td>
