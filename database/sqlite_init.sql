@@ -117,13 +117,16 @@ CREATE TABLE Subscribed(
 );
 
 CREATE TABLE Borrowed(
-   id_user INTEGER,
-   id_document INTEGER,
-   date_borrowed NUMERIC,
-   PRIMARY KEY(id_user, id_document),
+   id_borrowed INTEGER,
+   date_borrowed NUMERIC NOT NULL,
+   return_date_borrowed NUMERIC,
+   id_user INTEGER NOT NULL,
+   id_document INTEGER NOT NULL,
+   PRIMARY KEY(id_borrowed),
    FOREIGN KEY(id_user) REFERENCES Users(id_user),
    FOREIGN KEY(id_document) REFERENCES Document(id_document)
 );
+
 
 CREATE TABLE Document_tag(
    id_document INTEGER,

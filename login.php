@@ -3,7 +3,7 @@
 session_start();
 
 // Include database connection
-include 'database/db_connection.php';
+require_once 'database/db_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'login') {
     $email = htmlspecialchars($_POST['email']);

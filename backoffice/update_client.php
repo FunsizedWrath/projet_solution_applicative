@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = $_POST['address'] ? htmlspecialchars($_POST['address']) : null;
     $postcode = $_POST['postcode'] ? htmlspecialchars($_POST['postcode']) : null;
     $city = $_POST['city'] ? htmlspecialchars($_POST['city']) : null;
-    $role = $_POST['role'] ? htmlspecialchars($_POST['role']) : null;
+    $id_role = $_POST['role'] ? htmlspecialchars($_POST['role']) : null;
     $password = $_POST['password'] ? htmlspecialchars($_POST['password']) : null;
 
     // Update user data in the database
@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'id_role' => $id_role,
         'id_user' => $user_id
     ];
+    var_dump($id_role);
 
     if (!empty($password)) {
         $query .= ", password_user = :password_user";
@@ -141,6 +142,7 @@ $roles = array_filter($roles, function ($r) use ($role) {
                             <?= htmlspecialchars($role['name_role']) ?>
                         </option>
                     <?php endforeach; ?>
+                </select>
 
                 <label for="password">Mot de passe :</label>
                 <input type="password" id="password" name="password" placeholder="Laissez vide si vous ne souhaitez pas le changer" class="input">

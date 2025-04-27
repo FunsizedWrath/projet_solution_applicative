@@ -2,7 +2,7 @@
 session_start();
 
 // Include database connection
-include 'database/db_connection.php';
+require_once 'database/db_connection.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
