@@ -146,7 +146,7 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= htmlspecialchars($user['name_user']) ?></td>
                     <td><?= htmlspecialchars($user['email_user']) ?></td>
                     <td>
-                        <a href="update_document.php?id_user=<?= $user['id_user'] ?>" style="display: inline-block;">
+                        <a href="update_client.php?id_user=<?= $user['id_user'] ?>" style="display: inline-block;">
                             <button type="button">Update</button>
                         </a>
                         <form method="POST" style="display: inline;">
