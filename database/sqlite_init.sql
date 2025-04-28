@@ -62,8 +62,10 @@ CREATE TABLE Users(
    postcode_user TEXT,
    password_user TEXT,
    city_user TEXT,
+   id_subscription INTEGER,
    id_role INTEGER NOT NULL DEFAULT 4,
    PRIMARY KEY(id_user),
+   FOREIGN KEY(id_subscription) REFERENCES Subscription(id_subscription),
    FOREIGN KEY(id_role) REFERENCES Role(id_role)
 );
 
