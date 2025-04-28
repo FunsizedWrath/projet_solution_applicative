@@ -17,14 +17,14 @@ CREATE TABLE Permission(
    UNIQUE(name_permission)
 );
 
-CREATE TABLE Subscription(
-   id_subscription INTEGER,
-   name_subscription TEXT NOT NULL,
-   start_date_subscription NUMERIC,
-   end_date_subscription NUMERIC,
-   PRIMARY KEY(id_subscription),
-   UNIQUE(name_subscription)
+CREATE TABLE Subscription_type(
+   id_subscription_type INTEGER,
+   name_subscription_type TEXT NOT NULL,
+   duration_subscription_type INTEGER,
+   PRIMARY KEY(id_subscription_type),
+   UNIQUE(name_subscription_type)
 );
+
 
 CREATE TABLE Location(
    id_location INTEGER,
@@ -110,13 +110,17 @@ CREATE TABLE Dispute(
    FOREIGN KEY(id_document) REFERENCES Document(id_document)
 );
 
-CREATE TABLE Subscribed(
-   id_user INTEGER,
+CREATE TABLE Subscription(
    id_subscription INTEGER,
-   PRIMARY KEY(id_user, id_subscription),
-   FOREIGN KEY(id_user) REFERENCES Users(id_user),
-   FOREIGN KEY(id_subscription) REFERENCES Subscription(id_subscription)
+   end_date_subscription NUMERIC,
+   start_date_subscription NUMERIC,
+   id_subscription_type INTEGER NOT NULL,
+   id_user INTEGER NOT NULL,
+   PRIMARY KEY(id_subscription),
+   FOREIGN KEY(id_subscription_type) REFERENCES Subscription_type(id_subscription_type),
+   FOREIGN KEY(id_user) REFERENCES Users(id_user)
 );
+
 
 CREATE TABLE Borrowed(
    id_borrowed INTEGER,

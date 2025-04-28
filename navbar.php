@@ -33,6 +33,9 @@ $base_url = $httpProtocol.'://'.$_SERVER['HTTP_HOST'];
         if (isset($_SESSION['role']) && in_array($_SESSION['role'], [1, 2, 3])) {
             echo "<a href=\"$base_url/backoffice/manage_library.php\">Gérer la bibliothèque</a>";
             echo "<a href=\"$base_url/backoffice/manage_client.php\">Gérer les clients</a>";
+            echo "<a href=\"$base_url/backoffice/manage_location.php\">Gérer les emplacements</a>";
+            echo "<a href=\"$base_url/backoffice/manage_subscription.php\">Gérer les abonnements</a>";
+            echo "<a href=\"$base_url/backoffice/manage_tag.php\">Gérer les étiquettes</a>";
         }
         echo '<div class="navbar-right">';
         if (isset($_SESSION['user_id'])) {
