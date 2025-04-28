@@ -21,6 +21,7 @@ CREATE TABLE Subscription_type(
    id_subscription_type INTEGER,
    name_subscription_type TEXT NOT NULL,
    duration_subscription_type INTEGER,
+   price_subscription_type NUMERIC,
    PRIMARY KEY(id_subscription_type),
    UNIQUE(name_subscription_type)
 );

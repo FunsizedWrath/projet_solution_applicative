@@ -1,33 +1,31 @@
 <?php
-// Database connection
-$db = new PDO('sqlite:../path_to_your_database.db'); // Update the path to your SQLite database
+require_once '../database/db_connection.php';
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         $action = $_POST['action'];
+        $name = $_POST['name_subscription_type'] ?? '';
+        $duration = $_POST['duration_subscription_type'] ?? '';
+        $price = $_POST['price_subscription_type'] ?? 0;
+        $id = $_POST['id_subscription_type'];
 
-        if ($action === 'create') {
-            $name = $_POST['name'];
-            $price = $_POST['price'];
-            $stmt = $db->prepare("INSERT INTO subscription_type (name, price) VALUES (:name, :price)");
-            $stmt->execute([':name' => $name, ':price' => $price]);
-        } elseif ($action === 'update') {
-            $id = $_POST['id'];
-            $name = $_POST['name'];
-            $price = $_POST['price'];
-            $stmt = $db->prepare("UPDATE subscription_type SET name = :name, price = :price WHERE id = :id");
-            $stmt->execute([':id' => $id, ':name' => $name, ':price' => $price]);
-        } elseif ($action === 'delete') {
-            $id = $_POST['id'];
-            $stmt = $db->prepare("DELETE FROM subscription_type WHERE id = :id");
-            $stmt->execute([':id' => $id]);
+        if ($action === 'create' && !empty($name) && !empty($duration)) {
+            $stmt = $pdo->prepare("INSERT INTO Subscription_type (name_subscription_type, duration_subscription_type, price_subscription_type) VALUES (:name, :duration, :price)");
+            $stmt->execute(['name' => $name, 'duration' => $duration]);
+        } elseif ($action === 'update' && !empty($id) && !empty($name) && !empty($duration)) {
+            $stmt = $pdo->prepare("UPDATE Subscription_type SET name_subscription_type = :name, duration_subscription_type = :duration, price_subscription_type = :price WHERE id_subscription_type = :id");
+            $stmt->execute(['id' => $id, 'name' => $name, 'duration' => $duration, 'price'=> $price]);
+        } elseif ($action === 'delete' && !empty($id)) {
+            $stmt = $pdo->prepare("DELETE FROM Subscription_type WHERE id_subscription_type = :id");
+            $stmt->execute(['id' => $id]);
         }
     }
 }
 
 // Fetch all subscription types
-$subscriptionTypes = $db->query("SELECT * FROM subscription_type")->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query("SELECT * FROM Subscription_type");
+$subscription_types = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -36,48 +34,48 @@ $subscriptionTypes = $db->query("SELECT * FROM subscription_type")->fetchAll(PDO
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Subscription Types</title>
+    <link rel="stylesheet" href="../styles/style.css">
 </head>
 <body>
+    <?php include '../navbar.php'; ?>
     <h1>Manage Subscription Types</h1>
-
-    <h2>Create Subscription Type</h2>
     <form method="POST">
         <input type="hidden" name="action" value="create">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" step="0.01" required>
+        <input type="text" name="name_subscription_type" placeholder="Nom" required>
+        <input type="text" name="duration_subscription_type" placeholder="Durée" required>
+        <input type="text" name="price_subscription_type" placeholder="Prix">
         <button type="submit">Create</button>
     </form>
 
-    <h2>Existing Subscription Types</h2>
     <table border="1">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Name</th>
-                <th>Price</th>
+                <th>Durée</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($subscriptionTypes as $type): ?>
+            <?php foreach ($subscription_types as $type): ?>
                 <tr>
-                    <td><?= htmlspecialchars($type['id']) ?></td>
-                    <td><?= htmlspecialchars($type['name']) ?></td>
-                    <td><?= htmlspecialchars($type['price']) ?></td>
-                    <td>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="action" value="update">
-                            <input type="hidden" name="id" value="<?= htmlspecialchars($type['id']) ?>">
-                            <input type="text" name="name" value="<?= htmlspecialchars($type['name']) ?>" required>
-                            <input type="number" name="price" value="<?= htmlspecialchars($type['price']) ?>" step="0.01" required>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="id_subscription_type" value="<?= htmlspecialchars($type['id_subscription_type']) ?>">
+                        <td>
+                            <input type="text" name="name_subscription_type" value="<?= htmlspecialchars($type['name_subscription_type']) ?>" required>
+                        </td>
+                        <td>
+                            <input type="text" name="duration_subscription_type" value="<?= htmlspecialchars($type['duration_subscription_type']) ?>"required>
+                        </td>
+                        <td>
+                            <input type="text" name="price_subscription_type" value="<?= htmlspecialchars($type['price_subscription_type']) ?>">
+                        <td>
                             <button type="submit">Update</button>
                         </form>
                         <form method="POST" style="display:inline;">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?= htmlspecialchars($type['id']) ?>">
-                            <button type="submit" onclick="return confirm('Are you sure you want to delete this subscription type?');">Delete</button>
+                            <input type="hidden" name="id_subscription_type" value="<?= htmlspecialchars($type['id_subscription_type']) ?>">
+                            <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
                         </form>
                     </td>
                 </tr>
