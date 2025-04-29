@@ -81,6 +81,18 @@ $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 include '../database/document_type_enum.php';
+
+$result = [];
+$search_term = "";
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $search_term = $_GET['search'] ?? null;
+    if ($search_term != null) {
+        $search_term = htmlspecialchars($search_term);
+        $stmt = $pdo->prepare("SELECT d.*, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk, l.* FROM document d LEFT JOIN book b ON d.id_document = b.id_document LEFT JOIN disk di ON d.id_document = di.id_document LEFT JOIN location l ON d.id_location = l.id_location WHERE d.title_document LIKE :search_term OR d.description_document LIKE :search_term");
+        $stmt->execute(['search_term' => '%' . $search_term . '%']);
+        $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -185,6 +197,12 @@ include '../database/document_type_enum.php';
     </form>
 
     <h2>Existing Documents</h2>
+    <div class="search-container">
+        <form method="GET" action="manage_library.php">
+            <input type="text" name="search" placeholder="Chercher un document..." value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+            <button type="submit">Rechercher</button>
+        </form>
+    </div>
     <table border="1" class="document-table">
         <thead>
             <tr>
