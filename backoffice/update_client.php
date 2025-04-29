@@ -30,33 +30,28 @@ if ($result) {
     exit();
 }
 
-$query = $pdo->prepare("SELECT * FROM Subscription WHERE id_user = :id_user");
-$query->execute(["id_user" => $user_id]);
-$user_subscriptions = $query->fetchAll(PDO::FETCH_ASSOC);
-//$user_subscriptions = $pdo->query("SELECT * FROM Subscription WHERE id_user = :id_user")->execute(["id_user" => $user_id])->fetch(PDO::FETCH_ASSOC);
-$active_subscription = null;
-if ($user_subscriptions) {
-    for ($i = 0; $i < count($user_subscriptions); $i++) {
-        if ($user_subscriptions[$i]['end_date_subscription'] > date('Y-m-d')) {
-            $active_subscription = $user_subscriptions[$i];
-        }
-    }
-}
+$roles = $pdo->query("SELECT * FROM role")->fetchAll(PDO::FETCH_ASSOC);
+
+$roles = array_filter($roles, function ($r) use ($role) {
+    return $r['id_role'] >= $role;
+});
+
+$subscription_types = $pdo->query("SELECT * FROM Subscription_type")->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($_POST['delete_subscription'])) {
-        $stmt = $pdo->prepare("DELETE FROM Subscription WHERE id_user = :id_user AND end_date_subscription > DATE()");
-        if ($stmt->execute(['id_user' => $user_id])) {
-            $message = "Subscription cancelled successfully.";
+        $stmt = $pdo->prepare("DELETE FROM Subscription WHERE id_subscription = :id_subscription");
+        if ($stmt->execute(['id_subscription' => $_POST['id_subscription']])) {
+            $message = "Subscription deleted successfully.";
             $active_subscription = null;
         } else {
-            $message = "Error cancelling subscription.";
+            $message = "Error deleting subscription.";
         }
     } else if (!empty($_POST["cancel_subscription"])) {
-        $stmt = $pdo->prepare("UPDATE Subscription SET end_date_subscription = DATE() WHERE id_user = :id_user AND end_date_subscription > DATE()");
-        if ($stmt->execute(['id_user' => $user_id])) {
+        $stmt = $pdo->prepare("UPDATE Subscription SET end_date_subscription = DATE() WHERE id_subscription = :id_subscription");
+        if ($stmt->execute(['id_subscription' => $_POST['id_subscription']])) {
             $message = "Subscription cancelled successfully.";
             $active_subscription = null;
         } else {
@@ -87,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id_role' => $id_role,
             'id_user' => $user_id
         ];
-        var_dump($id_role);
 
         if (!empty($password)) {
             $query .= ", password_user = :password_user";
@@ -126,9 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )
             )");
             if ($stmt->execute(['id_user' => $user_id, 'id_subscription_type' => $id_subscription_type])) {
-                $active_subscription = array_find($subscription_types, function ($type) use ($id_subscription_type) {
-                    return $type['id_subscription_type'] == $id_subscription_type;
-                });
                 $message = "Subscription added successfully.";
             } else {
                 $message = "Error adding subscription.";
@@ -137,13 +128,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$roles = $pdo->query("SELECT * FROM role")->fetchAll(PDO::FETCH_ASSOC);
-
-$roles = array_filter($roles, function ($r) use ($role) {
-    return $r['id_role'] >= $role;
-});
-
-$subscription_types = $pdo->query("SELECT * FROM Subscription_type")->fetchAll(PDO::FETCH_ASSOC);
+$query = $pdo->prepare("SELECT * FROM Subscription WHERE id_user = :id_user");
+$query->execute(["id_user" => $user_id]);
+$user_subscriptions = $query->fetchAll(PDO::FETCH_ASSOC);
+$active_subscription = null;
+if ($user_subscriptions) {
+    for ($i = 0; $i < count($user_subscriptions); $i++) {
+        if ($user_subscriptions[$i]['end_date_subscription'] > date('Y-m-d')) {
+            $active_subscription = $user_subscriptions[$i];
+            var_dump($active_subscription);
+        }
+    }
+}
 
 ?>
 
@@ -211,13 +207,15 @@ $subscription_types = $pdo->query("SELECT * FROM Subscription_type")->fetchAll(P
                 <?php else: ?>
                     <p>Abonnement actif : <br/>
                     Type : <?= htmlspecialchars(array_find($subscription_types, function ($type) use ($active_subscription) { return $type['id_subscription_type'] == $active_subscription['id_subscription_type']; })['name_subscription_type']) ?><br/>
-                    Fin de l'abonnement : <?= htmlspecialchars($active_subscription['end_date_subscription']) ?></p>
+                    Fin de l'abonnement : <?= $active_subscription['end_date_subscription'] ?></p>
                     <form method="POST" action="">
-                        <input type="hidden" name="action" value="cancel_subscription">
+                        <input type="hidden" name="cancel_subscription" value="cancel_subscription">
+                        <input type="hidden" name="id_subscription" value="<?= $active_subscription['id_subscription']; ?>">
                         <button type="submit">Annuler l'abonnement</button>
                     </form>
                     <form method="POST" action="">
-                        <input type="hidden" name="action" value="delete_subscription">
+                        <input type="hidden" name="delete_subscription" value="delete_subscription">
+                        <input type="hidden" name="id_subscription" value="<?= $active_subscription['id_subscription']; ?>">
                         <button type="submit">Supprimer l'abonnement</button>
                     </form>
                 <?php endif; ?>
