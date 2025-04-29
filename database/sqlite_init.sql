@@ -26,6 +26,13 @@ CREATE TABLE Subscription_type(
    UNIQUE(name_subscription_type)
 );
 
+CREATE TABLE Dispute_type(
+   id_dispute_type INTEGER,
+   name_dispute_type TEXT NOT NULL,
+   PRIMARY KEY(id_dispute_type),
+   UNIQUE(name_dispute_type)
+);
+
 
 CREATE TABLE Location(
    id_location INTEGER,
@@ -70,6 +77,18 @@ CREATE TABLE Users(
    FOREIGN KEY(id_role) REFERENCES Role(id_role)
 );
 
+CREATE TABLE Dispute(
+   id_dispute INTEGER,
+   start_date_dispute NUMERIC,
+   end_date_dispute NUMERIC,
+   status_dispute TEXT,
+   description_dispute TEXT,
+   id_dispute_type INTEGER NOT NULL,
+   PRIMARY KEY(id_dispute),
+   FOREIGN KEY(id_dispute_type) REFERENCES Dispute_type(id_dispute_type)
+);
+
+
 CREATE TABLE Book(
    id_document INTEGER,
    author_book TEXT,
@@ -94,21 +113,6 @@ CREATE TABLE Role_permission(
    PRIMARY KEY(id_role, id_permission),
    FOREIGN KEY(id_role) REFERENCES Role(id_role),
    FOREIGN KEY(id_permission) REFERENCES Permission(id_permission)
-);
-
-CREATE TABLE Dispute(
-   id_user INTEGER,
-   id_record INTEGER,
-   id_document INTEGER,
-   type_dispute TEXT NOT NULL,
-   description_dispute TEXT,
-   status_dispute TEXT,
-   start_date_dispute NUMERIC,
-   end_date_dispute NUMERIC,
-   PRIMARY KEY(id_user, id_record, id_document),
-   FOREIGN KEY(id_user) REFERENCES Users(id_user),
-   FOREIGN KEY(id_record) REFERENCES Record(id_record),
-   FOREIGN KEY(id_document) REFERENCES Document(id_document)
 );
 
 CREATE TABLE Subscription(
@@ -142,6 +146,25 @@ CREATE TABLE Document_tag(
    FOREIGN KEY(id_document) REFERENCES Document(id_document),
    FOREIGN KEY(id_tag) REFERENCES Tag(id_tag)
 );
+
+
+CREATE TABLE involves(
+   id_user INTEGER,
+   id_dispute INTEGER,
+   PRIMARY KEY(id_user, id_dispute),
+   FOREIGN KEY(id_user) REFERENCES Users(id_user),
+   FOREIGN KEY(id_dispute) REFERENCES Dispute(id_dispute)
+);
+
+
+CREATE TABLE disputed(
+   id_dispute INTEGER,
+   id_document INTEGER,
+   PRIMARY KEY(id_dispute, id_document),
+   FOREIGN KEY(id_dispute) REFERENCES Dispute(id_dispute),
+   FOREIGN KEY(id_document) REFERENCES Document(id_document)
+);
+
 
 
 INSERT INTO Users VALUES (1,'super','admin','superadmin@email.com',NULL,NULL,NULL,'$2y$10$KXGI.JGpzKMZ4PFlSLX6DeNWO1/hKg0fu52rBQvcHDzgwzNpIw0EO',NULL,1);
