@@ -83,10 +83,15 @@ CREATE TABLE Dispute(
    end_date_dispute NUMERIC,
    status_dispute TEXT,
    description_dispute TEXT,
+   id_document INTEGER NOT NULL,
    id_dispute_type INTEGER NOT NULL,
+   id_user INTEGER NOT NULL,
    PRIMARY KEY(id_dispute),
-   FOREIGN KEY(id_dispute_type) REFERENCES Dispute_type(id_dispute_type)
+   FOREIGN KEY(id_document) REFERENCES Document(id_document),
+   FOREIGN KEY(id_dispute_type) REFERENCES Dispute_type(id_dispute_type),
+   FOREIGN KEY(id_user) REFERENCES Users(id_user)
 );
+
 
 
 CREATE TABLE Book(
@@ -145,24 +150,6 @@ CREATE TABLE Document_tag(
    PRIMARY KEY(id_document, id_tag),
    FOREIGN KEY(id_document) REFERENCES Document(id_document),
    FOREIGN KEY(id_tag) REFERENCES Tag(id_tag)
-);
-
-
-CREATE TABLE involves(
-   id_user INTEGER,
-   id_dispute INTEGER,
-   PRIMARY KEY(id_user, id_dispute),
-   FOREIGN KEY(id_user) REFERENCES Users(id_user),
-   FOREIGN KEY(id_dispute) REFERENCES Dispute(id_dispute)
-);
-
-
-CREATE TABLE disputed(
-   id_dispute INTEGER,
-   id_document INTEGER,
-   PRIMARY KEY(id_dispute, id_document),
-   FOREIGN KEY(id_dispute) REFERENCES Dispute(id_dispute),
-   FOREIGN KEY(id_document) REFERENCES Document(id_document)
 );
 
 

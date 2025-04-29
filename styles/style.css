@@ -131,6 +131,9 @@ button:hover {
     float: left;
     background-color: #f4f4f4;
     padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
 }
