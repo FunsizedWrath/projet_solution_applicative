@@ -218,7 +218,7 @@ $subscription_types = $pdo->query("SELECT * FROM Subscription_type")->fetchAll(P
                     </form>
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="delete_subscription">
-                        <button type="submit">Annuler l'abonnement</button>
+                        <button type="submit">Supprimer l'abonnement</button>
                     </form>
                 <?php endif; ?>
 

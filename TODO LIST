@@ -3,12 +3,16 @@ BACKOFFICE
 -modifier le form gestion manage_clients
     -faire le form pour les disputes dans la page spécifique d'un user
     -barre de recherche
+    
 -gestion de documents -> implémenter une barre de recherche
+
+
 -gerer l'emprunt de documents
--gerer les abonnements users
+-gerer le retour de documents
+-gérer le stock -> gérer un document indisponible
+
 -gérer les tags pour les documents
 
--gérer le stock -> gérer un document indisponible
 
 CLIENT
 -barre de recherche + filtres grâce aux tags
