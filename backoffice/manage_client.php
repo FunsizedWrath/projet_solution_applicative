@@ -73,6 +73,16 @@ $roles = array_filter($roles, function ($r) use ($role) {
 
 // Fetch users
 $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
+
+$search_term = "";
+$search_term = $_GET['search'] ?? null;
+if ($search_term != null) {
+    $search_term = htmlspecialchars($search_term);
+    $stmt = $pdo->prepare("SELECT u.* FROM users u WHERE u.email_user LIKE :search_term OR u.lastname_user LIKE :search_term OR u.name_user LIKE :search_term");
+    $stmt->execute(['search_term' => '%' . $search_term . '%']);
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -130,6 +140,15 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
     </form>
 
     <h2>Users</h2>
+    <div class="search-container">
+        <form method="GET" action="">
+            <input type="text" name="search" placeholder="Chercher un utilisateur..." value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+            <button type="submit">Rechercher</button>
+        </form>
+    </div>
+    <?php if (count($users) < 1): ?>
+        Aucun utilisateur trouvé.
+    <?php else: ?>
     <table border="1">
         <thead>
             <tr>
@@ -160,5 +179,6 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </tbody>
     </table>
+    <?php endif; ?>
 </body>
 </html></form></td></tbody></form>
