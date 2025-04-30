@@ -4,6 +4,7 @@ enum display_argument
     case Update;
     case Borrow;
     case Return;
+    case NoAction;
 
     public static function fromName(string $name): display_argument
     {

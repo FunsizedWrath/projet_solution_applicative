@@ -3,6 +3,17 @@
 
 require_once 'database/db_connection.php';
 
+session_start();
+
+$role = $_SESSION['role'] ?? null;
+if ($role === null) {
+    header("Location: login.php");
+    exit();
+} elseif ($role < 1 || $role >= 4) {
+    echo "Access denied.";
+    exit();
+}
+
 // Check if the document ID is provided in the GET parameter
 if (!isset($_GET['id_document']) || empty($_GET['id_document'])) {
     die("Document ID is required.");

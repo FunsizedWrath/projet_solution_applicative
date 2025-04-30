@@ -3,6 +3,8 @@ session_start();
 
 // Include database connection
 require_once 'database/db_connection.php';
+require_once 'database/document_type_enum.php';
+require_once 'display_argument_enum.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -22,6 +24,8 @@ if ($result) {
     echo "Error: User not found.";
     exit();
 }
+
+$section = $_GET['section'] ?? 'personal-info';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -73,6 +77,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Error: " . $e->getMessage();
     }
 }
+
+$stmt = $pdo->prepare("SELECT DISTINCT d.*, br.date_borrowed, br.return_date_borrowed, br.id_borrowed, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk
+FROM document d
+LEFT JOIN book b ON d.id_document = b.id_document
+LEFT JOIN disk di ON d.id_document = di.id_document
+JOIN borrowed br ON br.id_document = d.id_document AND br.id_user = :id_user");
+$stmt->execute(['id_user' => $user_id]);
+$documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+usort($documents, function ($a, $b) {
+    if ($a['return_date_borrowed'] && $b['return_date_borrowed']) {
+        return strtotime($a['return_date_borrowed']) - strtotime($b['return_date_borrowed']);
+    } elseif ($a['return_date_borrowed']) {
+        return 1;
+    } elseif ($b['return_date_borrowed']) {
+        return -1;
+    }
+    return strtotime($a['date_borrowed']) - strtotime($b['date_borrowed']);
+});
+
+$stmt = $pdo->prepare("SELECT * FROM dispute JOIN dispute_type ON dispute.id_dispute_type = dispute_type.id_dispute_type JOIN document ON dispute.id_document = document.id_document WHERE id_user = :id_user");
+$stmt->execute(['id_user' => $user_id]);
+$activeDisputes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -86,11 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php include 'navbar.php'; ?>
     <div class="sidebar">
-        <button onclick="showSection('personal-info')">Données personnelles</button>
-        <button onclick="showSection('active-books')">Documents empruntés</button>
-        <button onclick="showSection('active-disputes')">Contentieux</button>
+        <a href="?section=personal-info&id_user=<?= $user_id ?>"><button type="button">Données personnelles</button></a>
+        <a href="?section=active-documents&id_user=<?= $user_id ?>"><button type="button">Documents empruntés</button></a>
+        <a href="?section=active-disputes&id_user=<?= $user_id ?>"><button type="button">Contentieux</button></a>
     </div>
     <div class="content">
+        <?php if ($section == 'personal-info'): ?>
         <div id="personal-info" class="section active">
             <?php if (!empty($message)): ?>
                 <p class="message"><?= $message ?></p>
@@ -123,20 +151,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="button">Mettre à jour</button>
             </form>
         </div>
+        <?php elseif ($section == 'active-documents'): ?>
         <div id="active-books" class="section">
-            <ul>
-                <?php foreach ($activeBooks as $book): ?>
-                    <li><?= htmlspecialchars($book['title']) ?> - Due: <?= htmlspecialchars($book['due_date']) ?></li>
-                <?php endforeach; ?>
-            </ul>
+            <h2>Livres empruntés</h2>
+            <?php $display_argument = display_argument::NoAction; require_once 'display_documents.php'; ?>
         </div>
+        <?php elseif ($section == 'active-disputes'): ?>
         <div id="active-disputes" class="section">
-            <ul>
-                <?php foreach ($activeDisputes as $dispute): ?>
-                    <li>#<?= htmlspecialchars($dispute['id']) ?> - <?= htmlspecialchars($dispute['description']) ?></li>
-                <?php endforeach; ?>
-            </ul>
+        <table class="dispute-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Titre du document</th>
+                            <th>Date de création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($activeDisputes as $dispute): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($dispute['id_dispute']) ?></td>
+                                <td><?= htmlspecialchars($dispute['status_dispute']) ?></td>
+                                <td><?= htmlspecialchars($dispute['description_dispute']) ?></td>
+                                <td><?= htmlspecialchars($dispute['name_dispute_type']) ?></td>
+                                <td><?= htmlspecialchars($dispute['title_document']) ?></td>
+                                <td><?= htmlspecialchars($dispute['start_date_dispute']) ?></td>
+                                <td>
+                                    <?php if ($dispute['end_date_dispute'] == null): ?>
+                                        <p>Non résolu</p>
+                                    <?php else: ?>
+                                        <p>Résolu le : <?= htmlspecialchars($dispute['end_date_dispute']) ?></p>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
         </div>
+        <?php endif; ?>
     </div>
     <script>
         function showSection(sectionId) {

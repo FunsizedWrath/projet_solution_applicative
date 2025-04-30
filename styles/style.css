@@ -205,6 +205,21 @@ button:hover {
     width: 50%;
 }
 
-.document-table {
+.full-width-table {
     width: 100%;
+}
+
+.dispute-table {
+    width: 100%;
+    border: #000000 solid 1px;
+}
+
+.dispute-table > tbody > tr > td {
+    border: #000000 solid 1px;
+    padding: 5px 10px;
+}
+
+.dispute-table > thead > tr > th {
+    border: #000000 solid 1px;
+    padding: 5px 10px;
 }

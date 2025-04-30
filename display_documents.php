@@ -3,13 +3,14 @@ require_once 'database/document_type_enum.php';
 require_once 'display_argument_enum.php';
 ?>
 
-<table border="1" class="document-table">
+<table border="1" class="full-width-table">
     <thead>
         <tr>
             <th>Title</th>
             <th>Type</th>
             <th>Infos</th>
-            <?php if (!$hide_document_actions): ?> <th>Actions</th> <?php endif; ?>
+            <?php if ($display_argument == display_argument::NoAction): ?> <th>Status</th>
+            <?php else: ?> <th>Actions</th> <?php endif; ?>
         </tr>
     </thead>
     <tbody>
@@ -65,11 +66,23 @@ require_once 'display_argument_enum.php';
                     <td>
                         <p>Emprunté le : <?= htmlspecialchars($document['date_borrowed']) ?></p>
                         <?php if ($document['return_date_borrowed'] == null): ?>
-                        <form method="POST" style="display: inline;">
-                            <input type="hidden" name="action" value="return">
-                            <input type="hidden" name="id_borrowed" value="<?= $document['id_borrowed'] ?>">
-                            <button type="submit">Return</button>
-                        </form>
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="action" value="return">
+                                <input type="hidden" name="id_borrowed" value="<?= $document['id_borrowed'] ?>">
+                                <button type="submit">Return</button>
+                            </form>
+                        <?php else: ?>
+                            <p>Rendu le : <?= htmlspecialchars($document['return_date_borrowed']) ?></p>
+                        <?php endif; ?>
+                        <a href="create_dispute.php?id_document=<?= $document['id_document'] ?>&id_user=<?= $user_id ?>" style="display: inline-block;">
+                            <button type="button">Créer un contentieux</button>
+                        </a>
+                    </td>
+                <?php elseif ($display_argument == display_argument::NoAction): ?>
+                    <td>
+                        <p>Emprunté le : <?= htmlspecialchars($document['date_borrowed']) ?></p>
+                        <?php if ($document['return_date_borrowed'] == null): ?>
+                            Non rendu
                         <?php else: ?>
                             <p>Rendu le : <?= htmlspecialchars($document['return_date_borrowed']) ?></p>
                         <?php endif; ?>

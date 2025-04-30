@@ -132,6 +132,16 @@ if ($section == 'personal-info') {
         }
     }
 } elseif ($section == 'active-documents') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_POST['action'] === 'return') {
+            $stmt = $pdo->prepare("UPDATE borrowed SET return_date_borrowed = DATE() WHERE id_borrowed = :id_borrowed");
+            if ($stmt->execute(['id_borrowed' => $_POST['id_borrowed']])) {
+                $message = "Document returned successfully.";
+            } else {
+                $message = "Error returning document.";
+            }
+        }
+    }
     $stmt = $pdo->prepare("SELECT DISTINCT d.*, br.date_borrowed, br.return_date_borrowed, br.id_borrowed, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk
     FROM document d
     LEFT JOIN book b ON d.id_document = b.id_document
@@ -149,18 +159,18 @@ if ($section == 'personal-info') {
         }
         return strtotime($a['date_borrowed']) - strtotime($b['date_borrowed']);
     });
+
+} elseif ($section == 'active-disputes') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if ($_POST['action'] === 'return') {
-            $stmt = $pdo->prepare("UPDATE borrowed SET return_date_borrowed = DATE() WHERE id_borrowed = :id_borrowed");
-            if ($stmt->execute(['id_borrowed' => $_POST['id_borrowed']])) {
-                $message = "Document returned successfully.";
-            } else {
-                $message = "Error returning document.";
-            }
+        $stmt = $pdo->prepare("UPDATE dispute SET status_dispute = 'Résolu', end_date_dispute = DATE() WHERE id_dispute = :id_dispute");
+        if ($stmt->execute(['id_dispute' => $_POST['resolve_dispute']])) {
+            $message = "Dispute resolved successfully.";
+        } else {
+            $message = "Error resolving dispute.";
         }
     }
-} elseif ($section == 'active-disputes') {
-    $stmt = $pdo->prepare("SELECT * FROM dispute WHERE id_user = :id_user");
+
+    $stmt = $pdo->prepare("SELECT * FROM dispute JOIN dispute_type ON dispute.id_dispute_type = dispute_type.id_dispute_type JOIN document ON dispute.id_document = document.id_document WHERE id_user = :id_user");
     $stmt->execute(['id_user' => $user_id]);
     $activeDisputes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -272,11 +282,44 @@ if ($user_subscriptions) {
         </div>
         <?php elseif ($section == 'active-disputes'): ?>
             <div id="active-disputes" class="section"> <h2>Contentieux</h2>
-                <ul>
-                    <?php foreach ($activeDisputes as $dispute): ?>
-                        <li><?= htmlspecialchars($dispute['id']) ?> - <?= htmlspecialchars($dispute['description']) ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                <table class="dispute-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Titre du document</th>
+                            <th>Date de création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($activeDisputes as $dispute): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($dispute['id_dispute']) ?></td>
+                                <td><?= htmlspecialchars($dispute['status_dispute']) ?></td>
+                                <td><?= htmlspecialchars($dispute['description_dispute']) ?></td>
+                                <td><?= htmlspecialchars($dispute['name_dispute_type']) ?></td>
+                                <td><?= htmlspecialchars($dispute['title_document']) ?></td>
+                                <td><?= htmlspecialchars($dispute['start_date_dispute']) ?></td>
+                                <td>
+                                    <a href="update_dispute.php?id_dispute=<?= htmlspecialchars($dispute['id_dispute']) ?>">
+                                        <button type="button">Update</button>
+                                    </a>
+                                    <?php if ($dispute['end_date_dispute'] == null): ?>
+                                        <form method="POST" action="" style="display:inline;">
+                                            <input type="hidden" name="resolve_dispute" value="<?= htmlspecialchars( $dispute['id_dispute']) ?>">
+                                            <button type="submit">Resolve</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <p>Résolu le : <?= htmlspecialchars($dispute['end_date_dispute']) ?></p>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         <?php endif; ?>
     <script>
