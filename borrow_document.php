@@ -62,8 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Borrow Document</title>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+    <?php include 'navbar.php'; ?>
     <h1>Borrow Document</h1>
     <form action="" method="post">
         <input type="hidden" name="id_document" value="<?php echo htmlspecialchars($id_document); ?>">

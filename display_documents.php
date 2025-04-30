@@ -1,4 +1,7 @@
-<?php require_once 'database/document_type_enum.php'; ?>
+<?php
+require_once 'database/document_type_enum.php';
+require_once 'display_argument_enum.php';
+?>
 
 <table border="1" class="document-table">
     <thead>
@@ -41,7 +44,7 @@
                         </div>
                     </div>
                 </td>
-                <?php if (!$hide_document_actions): ?>
+                <?php if ($display_argument == display_argument::Update): ?>
                     <td>
                         <a href="update_document.php?id_document=<?= $document['id_document'] ?>&type=<?= $document['type_document']->name ?>" style="display: inline-block;">
                             <button type="button">Update</button>
@@ -51,6 +54,25 @@
                             <input type="hidden" name="id" value="<?= $document['id_document'] ?>">
                             <button type="submit">Delete</button>
                         </form>
+                    </td>
+                <?php elseif ($display_argument == display_argument::Borrow): ?>
+                    <td>
+                        <a href="borrow_document.php?id_document=<?= $document['id_document'] ?>&search=<?= $search ?>" style="display: inline-block;">
+                            <button type="button">Borrow</button>
+                        </a>
+                    </td>
+                <?php elseif ($display_argument == display_argument::Return): ?>
+                    <td>
+                        <p>Emprunté le : <?= htmlspecialchars($document['date_borrowed']) ?></p>
+                        <?php if ($document['return_date_borrowed'] == null): ?>
+                        <form method="POST" style="display: inline;">
+                            <input type="hidden" name="action" value="return">
+                            <input type="hidden" name="id_borrowed" value="<?= $document['id_borrowed'] ?>">
+                            <button type="submit">Return</button>
+                        </form>
+                        <?php else: ?>
+                            <p>Rendu le : <?= htmlspecialchars($document['return_date_borrowed']) ?></p>
+                        <?php endif; ?>
                     </td>
                 <?php endif; ?>
 
