@@ -140,6 +140,12 @@ if ($section == 'personal-info') {
             } else {
                 $message = "Error returning document.";
             }
+            $stmt = $pdo->prepare("UPDATE document SET available_document = 1 WHERE id_document = :id_document");
+            if ($stmt->execute(['id_document' => $_POST['id_document']])) {
+                $message = "Document returned successfully.";
+            } else {
+                $message = "Error returning document.";
+            }
         }
     }
     $stmt = $pdo->prepare("SELECT DISTINCT d.*, br.date_borrowed, br.return_date_borrowed, br.id_borrowed, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk

@@ -48,6 +48,7 @@ CREATE TABLE Document(
    publishing_date_document NUMERIC NOT NULL,
    description_document TEXT,
    acquisition_date_document NUMERIC NOT NULL,
+   available_document NUMERIC NOT NULL DEFAULT 1,
    id_location INTEGER NOT NULL,
    PRIMARY KEY(id_document),
    FOREIGN KEY(id_location) REFERENCES Location(id_location)

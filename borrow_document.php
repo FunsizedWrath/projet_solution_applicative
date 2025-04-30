@@ -54,6 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "id_user" => $id_user,
                 "date_borrowed" => date("Y-m-d") // Use the correct date format for your database
             ]);
+
+            $stmt = $pdo->prepare('UPDATE document SET available_document = 0 WHERE id_document = :id_document');
+            $stmt->execute(['id_document' => $id_document]);
             $return_to_search = $search ? "&search=" . htmlspecialchars($search) : "";
             header("Location: library.php?message=Borrowed successfully!$return_to_search");
             exit;

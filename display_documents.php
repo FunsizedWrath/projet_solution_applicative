@@ -58,9 +58,13 @@ require_once 'display_argument_enum.php';
                     </td>
                 <?php elseif ($display_argument == display_argument::Borrow): ?>
                     <td>
-                        <a href="borrow_document.php?id_document=<?= $document['id_document'] ?>&search=<?= $search ?>" style="display: inline-block;">
-                            <button type="button">Borrow</button>
-                        </a>
+                        <?php if ($document['available_document'] == 0): ?>
+                            <p>Document non disponible</p>
+                        <?php else: ?>
+                            <a href="borrow_document.php?id_document=<?= $document['id_document'] ?>&search=<?= $search ?>" style="display: inline-block;">
+                                <button type="button">Borrow</button>
+                            </a>
+                        <?php endif; ?>
                     </td>
                 <?php elseif ($display_argument == display_argument::Return): ?>
                     <td>
@@ -69,6 +73,7 @@ require_once 'display_argument_enum.php';
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="action" value="return">
                                 <input type="hidden" name="id_borrowed" value="<?= $document['id_borrowed'] ?>">
+                                <input type="hidden" name="id_document" value="<?= $document['id_document'] ?>">
                                 <button type="submit">Return</button>
                             </form>
                         <?php else: ?>
