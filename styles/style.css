@@ -163,11 +163,7 @@ button:hover {
 }
 
 .section {
-    display: none;
-}
-
-.section.active {
-    display: block;
+    padding: 10px;
 }
 
 .search-container {
@@ -200,14 +196,6 @@ button:hover {
     float: left;
     margin-left: 5%;
     box-sizing: border-box;
-}
-
-.section {
-    display: none;
-}
-
-.section.active {
-    display: block;
 }
 
 .document-details-table-cell {

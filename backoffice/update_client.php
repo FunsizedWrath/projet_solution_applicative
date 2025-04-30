@@ -1,6 +1,7 @@
 <?php
 // Include database connection
 require_once '../database/db_connection.php';
+require_once '../database/document_type_enum.php';
 
 session_start();
 
@@ -129,10 +130,24 @@ if ($section == 'personal-info') {
             }
         }
     }
-} elseif ($section == 'active-books') {
-    $stmt = $pdo->prepare("SELECT d.*, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk FROM document d LEFT JOIN book b ON d.id_document = b.id_document LEFT JOIN disk di ON d.id_document = di.id_document JOIN borrowed br ON br.id_user = :id_user");
+} elseif ($section == 'active-documents') {
+    $stmt = $pdo->prepare("SELECT DISTINCT d.*, br.date_borrowed, br.return_date_borrowed, br.id_borrowed, b.author_book, b.nbr_words_book, b.publisher_book, di.artist_disk, di.producer_disk, di.director_disk
+    FROM document d
+    LEFT JOIN book b ON d.id_document = b.id_document
+    LEFT JOIN disk di ON d.id_document = di.id_document
+    JOIN borrowed br ON br.id_document = d.id_document AND br.id_user = :id_user");
     $stmt->execute(['id_user' => $user_id]);
-    $activeBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_POST['action'] === 'return') {
+            $stmt = $pdo->prepare("UPDATE borrowed SET return_date_borrowed = DATE() WHERE id_borrowed = :id_borrowed");
+            if ($stmt->execute(['id_borrowed' => $_POST['id_borrowed']])) {
+                $message = "Document returned successfully.";
+            } else {
+                $message = "Error returning document.";
+            }
+        }
+    }
 } elseif ($section == 'active-disputes') {
     $stmt = $pdo->prepare("SELECT * FROM dispute WHERE id_user = :id_user");
     $stmt->execute(['id_user' => $user_id]);
@@ -166,7 +181,7 @@ if ($user_subscriptions) {
     <?php include '../navbar.php'; ?>
     <div class="sidebar">
         <a href="?section=personal-info&id_user=<?= $user_id ?>">Données personnelles</a>
-        <a href="?section=active-books&id_user=<?= $user_id ?>">Documents empruntés</a>
+        <a href="?section=active-documents&id_user=<?= $user_id ?>">Documents empruntés</a>
         <a href="?section=active-disputes&id_user=<?= $user_id ?>">Contentieux</a>
     </div>
     <div class="content">
@@ -239,16 +254,64 @@ if ($user_subscriptions) {
                 <button type="submit" class="button">Mettre à jour</button>
             </form>
         </div>
-        <?php elseif ($section == 'active-books'): ?>
-        <div id="active-books" class="section"> Livres empruntés
-            <ul>
-                <?php foreach ($activeBooks as $book): ?>
-                    <li><?= htmlspecialchars($book['title']) ?> - Due: <?= htmlspecialchars($book['due_date']) ?></li>
-                <?php endforeach; ?>
-            </ul>
+        <?php elseif ($section == 'active-documents'): ?>
+        <div id="active-documents" class="section">
+            <h2>Livres empruntés</h2>
+            <table border="1" class="document-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Infos</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($documents as $document): ?>
+                        <?php $document['type_document'] = array_key_exists('author_book', $document) && $document['author_book'] != null
+                                ? type_document::Book
+                                : type_document::Disk ?>
+                        <tr>
+                            <td><?= htmlspecialchars($document['title_document']) ?></td>
+                            <td><?=
+                                $document['type_document'] == type_document::Book ? 'Livre' : 'Disque'
+                            ?></td>
+                            <td>
+                                <div style="display: flex; flex-direction: row; gap:2px; width: 100%;">
+                                    <div class="document-details-table-cell">
+                                    <!-- display the document details based on its type -->
+                                    <?php if ($document['type_document'] == type_document::Book): ?>
+                                        <p>Auteur : <?= htmlspecialchars($document['author_book']) ?></p>
+                                        <p>Nombre de mots : <?= htmlspecialchars($document['nbr_words_book']) ?></p>
+                                        <p>Editeur : <?= htmlspecialchars($document['publisher_book']) ?></p>
+                                    <?php else : ?>
+                                        <p>Artiste : <?= htmlspecialchars($document['artist_disk']) ?></p>
+                                        <p>Producteur : <?= htmlspecialchars($document['producer_disk']) ?></p>
+                                        <p>Directeur : <?= htmlspecialchars($document['director_disk']) ?></p>
+                                    <?php endif; ?>
+                                    </div>
+                                    <div class="document-details-table-cell">
+                                        <p>Description : <?= htmlspecialchars($document['description_document']) ?></p>
+                                        <p>Date de publication : <?= htmlspecialchars($document['publishing_date_document']) ?></p>
+                                        <p>Date d'acquisition : <?= htmlspecialchars($document['acquisition_date_document']) ?></p>
+                                        <p>Emplacement : <?= htmlspecialchars($document['name_location']) ?></p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="action" value="return">
+                                    <input type="hidden" name="id_borrowed" value="<?= $document['id_borrowed'] ?>">
+                                    <button type="submit">Return</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
         <?php elseif ($section == 'active-disputes'): ?>
-        <div id="active-disputes" class="section"> Contentieux
+        <div id="active-disputes" class="section"> <h2>Contentieux</h2>
             <ul>
                 <?php foreach ($activeDisputes as $dispute): ?>
                     <li>#<?= htmlspecialchars($dispute['id']) ?> - <?= htmlspecialchars($dispute['description']) ?></li>
